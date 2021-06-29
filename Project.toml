@@ -1,7 +1,7 @@
 name = "CubeLDFAModel"
 uuid = "56146587-2a70-4d59-809c-88d5ba27a8d3"
 authors = ["James Gardner <james.gardner1421@gmail.com> and contributors"]
-version = "0.1.0"
+version = "0.1.1"
 
 [deps]
 DataInterpolations = "82cc6244-b520-54b8-b5a6-8a565e85f1d0"

@@ -79,8 +79,7 @@ function LDFAModel(model::Model, filename, atoms, cell;
     LDFAModel(model, splines, cube_object, ρ, radii, friction_atoms, ustrip.(uconvert.(u"Å", cube_offset)), cell)
 end
 
-NonadiabaticModels.potential!(model::LDFAModel, V::AbstractVector, R::AbstractMatrix) =
-    potential!(model.model, V, R)
+NonadiabaticModels.potential(model::LDFAModel, R::AbstractMatrix) = potential(model.model, R)
 
 NonadiabaticModels.derivative!(model::LDFAModel, D::AbstractMatrix, R::AbstractMatrix) =
     derivative!(model.model, D, R)
