@@ -13,7 +13,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 UnitfulAtomic = "a7773ee8-282e-5fa2-be4e-bd808c38a91a"
 
 [compat]
-DataInterpolations = "0.3"
+DataInterpolations = "0.3, 3"
 NonadiabaticDynamicsBase = "0.1"
 NonadiabaticModels = "0.4"
 PyCall = "1"
