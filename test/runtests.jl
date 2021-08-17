@@ -1,10 +1,14 @@
-# using NonadiabaticModels: Free
-# using NonadiabaticDynamicsBase: PeriodicCell, Atoms
-# using CubeLDFAModel
-# using Test
+using NonadiabaticModels: Free
+using NonadiabaticDynamicsBase: PeriodicCell, Atoms
+using CubeLDFAModel
+using Test
 
-# @testset "CubeLDFAModel.jl" begin
+@testset "CubeLDFAModel.jl" begin
 
-#     vecs = [1 0 0; 0 1 0; 0 0 1]
-#     LDFAModel(Free(), "test.cube", Atoms([:H]), PeriodicCell(vecs))
-# end
+    vecs = [0.111175    0.000000    0.000000
+           -0.055588    0.096280    0.000000
+            0.000000    0.000000    0.703079]' .* 100
+    model = LDFAModel(Free(), "test.cube", Atoms([:H]), PeriodicCell(vecs))
+end
+
+include("test_cube.jl")
