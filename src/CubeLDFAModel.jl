@@ -9,16 +9,10 @@ using DelimitedFiles
 using UnitfulAtomic, Unitful
 using NonadiabaticDynamicsBase
 using NonadiabaticModels
-using PyCall
+
+include("cube.jl")
 
 export LDFAModel
-
-const cube = PyNULL()
-
-function __init__()
-    pushfirst!(PyVector(pyimport("sys")."path"), @__DIR__)
-    copy!(cube, pyimport("cube"))
-end
 
 """
     LDFAModel(model::Model, filename, atoms, cell;
@@ -32,17 +26,17 @@ This model assumes that the cube file has units of bohr for the grid and cell di
 but provides the density in ``Å^{-3}``, as is the default in `FHI-aims`.
 """
 struct LDFAModel{T,M,S} <: AdiabaticFrictionModel
-    """Model that provides the energies and forces."""
+    "Model that provides the energies and forces."
     model::M
-    """Splines fitted to the numerical LDFA data."""
+    "Splines fitted to the numerical LDFA data."
     splines::S
-    """Cube object provided by `cube.py`."""
-    cube::PyObject
-    """Temporary array for storing the electron density."""
+    "Cube file reader."
+    cube::Cube{T}
+    "Temporary array for storing the electron density."
     ρ::Vector{T}
-    """Temporary array for the Wigner-Seitz radii."""
+    "Temporary array for the Wigner-Seitz radii."
     radii::Vector{T}
-    """Indices of atoms that should have friction applied."""
+    "Indices of atoms that should have friction applied."
     friction_atoms::Vector{Int}
     "Optional vector that specifies offset that should be applied."
     cube_offset::Vector{T}
@@ -56,9 +50,9 @@ end
 
 function LDFAModel(model::Model, filename, atoms, cell;
                        friction_atoms=collect(range(atoms)),
-                       cube_offset=zeros(3).*u"Å")
-    cube_object = cube.cube()
-    cube_object.read(filename)
+                       cube_offset=zeros(3))
+
+    cube = Cube(filename)
 
     ldfa_data, _ = readdlm(joinpath(@__DIR__, "ldfa.txt"), ',', header=true)
     r = ldfa_data[:,1]
@@ -76,7 +70,7 @@ function LDFAModel(model::Model, filename, atoms, cell;
     ρ = zeros(length(atoms))
     radii = zero(ρ)
 
-    LDFAModel(model, splines, cube_object, ρ, radii, friction_atoms, ustrip.(uconvert.(u"Å", cube_offset)), cell)
+    LDFAModel(model, splines, cube, ρ, radii, friction_atoms, austrip.(cube_offset), cell)
 end
 
 NonadiabaticModels.potential(model::LDFAModel, R::AbstractMatrix) = potential(model.model, R)
@@ -88,8 +82,7 @@ function density!(model::LDFAModel, ρ::AbstractVector, R::AbstractMatrix)
     for i in model.friction_atoms
         r = R[:,i]
         apply_cell_boundaries!(model.cell, r)
-        r .= au_to_ang.(r)
-        ρ[i] = austrip(model.cube((r .+ model.cube_offset)...) * u"Å^-3")
+        ρ[i] = austrip(model.cube(r .+ model.cube_offset) * u"Å^-3")
     end
 end
 
