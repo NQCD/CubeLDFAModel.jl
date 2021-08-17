@@ -1,7 +1,5 @@
 #! /usr/bin/env python
 import numpy as np
-import sys
-import time
 
 def arr2D(list2D):
     '''arr2D converts a 2D list into a two-dimensional np.array. This is faster than converting a 2D list with the function np.array,
