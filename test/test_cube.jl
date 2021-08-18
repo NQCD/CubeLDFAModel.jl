@@ -21,6 +21,10 @@ cube_object.read(filename)
     @test c.density == cube_object."density".reshape(cube_object.x_len, cube_object.y_len, cube_object.z_len)
 
     vecs = inv(c.inverse)
+
+    r = c.origin .+ 1e-8
+    @test c(r) ≈ cube_object(au_to_ang.(r)...)
+
     for _=1:10
         r = c.origin
         r += rand() * vecs[1,:]
@@ -29,5 +33,8 @@ cube_object.read(filename)
 
         @test c(r) ≈ cube_object(au_to_ang.(r)...)
     end
+
+    r = c.origin + vecs[1,:] + vecs[2,:] + vecs[3,:] .- 1e-8
+    @test c(r) ≈ cube_object(au_to_ang.(r)...)
 end
 

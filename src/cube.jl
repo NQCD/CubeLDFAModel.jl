@@ -33,7 +33,7 @@ function (cube::Cube)(r::AbstractVector)
     if any(r .> 1) || any(r .< 0)
         throw(DomainError(r, "You cannot evaluate the density outside of the cell."))
     end
-    indices = round.(Int, r .* cube.shape) .+ 1
+    indices = floor.(Int, r .* cube.shape) .+ 1
 
     return cube.density[indices...]
 end
