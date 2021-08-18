@@ -58,7 +58,7 @@ class cube:
                 else:
                     print('point lies outside of cube cell = density 0.0')
                 return 0.0
-            int_coord = np.array(frac_coord * [self.x_len,self.y_len,self.z_len]).round().astype(int)
+            int_coord = np.array(frac_coord * [self.x_len,self.y_len,self.z_len], dtype=int)
             copy_density = self.density.reshape([self.x_len,self.y_len,self.z_len])
             return copy_density[int_coord[0],int_coord[1],int_coord[2]]
         else:
