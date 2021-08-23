@@ -11,8 +11,7 @@ aseio = pyimport("ase.io")
 ase_atoms = aseio.read("start.in")
 atoms, R, cell =  NonadiabaticDynamicsBase.convert_from_ase_atoms(ase_atoms)
 
-cube_offset = [0.027794, 0.048140, 0.351539]
-model = LDFAModel(Free(), "test.cube", atoms, cell; friction_atoms=[1, 2], cube_offset=cube_offset)
+model = LDFAModel(Free(), "test.cube", atoms, cell; friction_atoms=[1, 2])
 
 @testset "friction!" begin
 

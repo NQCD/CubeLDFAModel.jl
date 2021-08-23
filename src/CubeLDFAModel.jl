@@ -17,7 +17,7 @@ export LDFAModel
 """
     LDFAModel(model::Model, filename, atoms, cell;
               friction_atoms=collect(range(atoms)),
-              cube_offset=zeros(3).*u"Å")
+              )
 
 Wrapper for existing models that adds LDFA friction.
 
@@ -38,21 +38,25 @@ struct LDFAModel{T,M,S} <: AdiabaticFrictionModel
     radii::Vector{T}
     "Indices of atoms that should have friction applied."
     friction_atoms::Vector{Int}
-    "Optional vector that specifies offset that should be applied."
-    cube_offset::Vector{T}
     "Periodic cell containing the electron density."
     cell::PeriodicCell{T}
-    function LDFAModel(model, splines, cube, ρ, radii, friction_atoms, cube_offset, cell)
+    function LDFAModel(model, splines, cube, ρ, radii, friction_atoms, cell)
         new{eltype(cell),typeof(model),typeof(splines)}(
-            model, splines, cube, ρ, radii, friction_atoms, cube_offset, cell)
+            model, splines, cube, ρ, radii, friction_atoms, cell)
     end
 end
 
 function LDFAModel(model::Model, filename, atoms, cell;
-                       friction_atoms=collect(range(atoms)),
-                       cube_offset=zeros(3))
+                       friction_atoms=collect(range(atoms)), cell_matching_rtol=1e-3)
 
     cube = Cube(filename)
+
+    if !isapprox(cell.vectors, cube.cell, rtol=cell_matching_rtol)
+        error("the cube file cell vectors do not match the simulation cell vectors.\n",
+              "  Simulation vectors: ", cell.vectors, "\n",
+              "  Cube vectors: ", cube.cell
+        )
+    end
 
     ldfa_data, _ = readdlm(joinpath(@__DIR__, "ldfa.txt"), ',', header=true)
     r = ldfa_data[:,1]
@@ -70,7 +74,7 @@ function LDFAModel(model::Model, filename, atoms, cell;
     ρ = zeros(length(atoms))
     radii = zero(ρ)
 
-    LDFAModel(model, splines, cube, ρ, radii, friction_atoms, austrip.(cube_offset), cell)
+    LDFAModel(model, splines, cube, ρ, radii, friction_atoms, cell)
 end
 
 NonadiabaticModels.potential(model::LDFAModel, R::AbstractMatrix) = potential(model.model, R)
@@ -82,7 +86,7 @@ function density!(model::LDFAModel, ρ::AbstractVector, R::AbstractMatrix)
     for i in model.friction_atoms
         r = R[:,i]
         apply_cell_boundaries!(model.cell, r)
-        ρ[i] = austrip(model.cube(r .+ model.cube_offset) * u"Å^-3")
+        ρ[i] = austrip(model.cube(r + model.cube.origin) * u"Å^-3")
     end
 end
 
