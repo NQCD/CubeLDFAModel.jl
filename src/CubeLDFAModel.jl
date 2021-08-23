@@ -51,10 +51,10 @@ function LDFAModel(model::Model, filename, atoms, cell;
 
     cube = Cube(filename)
 
-    if !isapprox(cell.vectors, cube.cell, rtol=cell_matching_rtol)
+    if !isapprox(cell.vectors, cube.cell.vectors, rtol=cell_matching_rtol)
         error("the cube file cell vectors do not match the simulation cell vectors.\n",
               "  Simulation vectors: ", cell.vectors, "\n",
-              "  Cube vectors: ", cube.cell
+              "  Cube vectors: ", cube.cell.vectors
         )
     end
 
@@ -85,7 +85,7 @@ NonadiabaticModels.derivative!(model::LDFAModel, D::AbstractMatrix, R::AbstractM
 function density!(model::LDFAModel, ρ::AbstractVector, R::AbstractMatrix)
     for i in model.friction_atoms
         r = R[:,i]
-        apply_cell_boundaries!(model.cell, r)
+        apply_cell_boundaries!(model.cube.cell, r)
         ρ[i] = austrip(model.cube(r + model.cube.origin) * u"Å^-3")
     end
 end
