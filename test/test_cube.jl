@@ -20,21 +20,19 @@ cube_object.read(filename)
 @testset "Compare to cube.py" begin
     @test c.density == cube_object."density".reshape(cube_object.x_len, cube_object.y_len, cube_object.z_len)
 
-    vecs = inv(c.inverse)
-
     r = c.origin .+ 1e-8
     @test c(r) ≈ cube_object(au_to_ang.(r)...)
 
     for _=1:10
         r = c.origin
-        r += rand() * vecs[1,:]
-        r += rand() * vecs[2,:]
-        r += rand() * vecs[3,:]
+        r += rand() * c.cell[:,1]
+        r += rand() * c.cell[:,2]
+        r += rand() * c.cell[:,3]
 
         @test c(r) ≈ cube_object(au_to_ang.(r)...)
     end
 
-    r = c.origin + vecs[1,:] + vecs[2,:] + vecs[3,:] .- 1e-8
+    r = c.origin + c.cell[:,1] + c.cell[:,2] + c.cell[:,3] .- 1e-8
     @test c(r) ≈ cube_object(au_to_ang.(r)...)
 end
 
