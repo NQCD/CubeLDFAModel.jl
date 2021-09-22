@@ -4,11 +4,12 @@ provided by Gerrits et al. in PHYSICAL REVIEW B 102, 155130 (2020).
 """
 module CubeLDFAModel
 
-using DataInterpolations
-using DelimitedFiles
-using UnitfulAtomic, Unitful
-using NonadiabaticDynamicsBase
-using NonadiabaticModels
+using DataInterpolations: CubicSpline
+using DelimitedFiles: readdlm
+using UnitfulAtomic: austrip
+using Unitful: @u_str
+using NonadiabaticDynamicsBase: PeriodicCell, apply_cell_boundaries!
+using NonadiabaticModels: NonadiabaticModels, FrictionModels, Model
 
 include("cube.jl")
 
@@ -25,7 +26,7 @@ This model uses a cube file to evaluate the electron density used to calculate t
 This model assumes that the cube file has units of bohr for the grid and cell distances,
 but provides the density in ``Å^{-3}``, as is the default in `FHI-aims`.
 """
-struct LDFAModel{T,M,S} <: AdiabaticFrictionModel
+struct LDFAModel{T,M,S} <: FrictionModels.AdiabaticFrictionModel
     "Model that provides the energies and forces."
     model::M
     "Splines fitted to the numerical LDFA data."
@@ -77,10 +78,13 @@ function LDFAModel(model::Model, filename, atoms, cell;
     LDFAModel(model, splines, cube, ρ, radii, friction_atoms, cell)
 end
 
-NonadiabaticModels.potential(model::LDFAModel, R::AbstractMatrix) = potential(model.model, R)
+function NonadiabaticModels.potential(model::LDFAModel, R::AbstractMatrix)
+    NonadiabaticModels.potential(model.model, R)
+end
 
-NonadiabaticModels.derivative!(model::LDFAModel, D::AbstractMatrix, R::AbstractMatrix) =
-    derivative!(model.model, D, R)
+function NonadiabaticModels.derivative!(model::LDFAModel, D::AbstractMatrix, R::AbstractMatrix)
+    NonadiabaticModels.derivative!(model.model, D, R)
+end
 
 function density!(model::LDFAModel, ρ::AbstractVector, R::AbstractMatrix)
     for i in model.friction_atoms
@@ -90,7 +94,7 @@ function density!(model::LDFAModel, ρ::AbstractVector, R::AbstractMatrix)
     end
 end
 
-function NonadiabaticModels.friction!(model::LDFAModel, F::AbstractMatrix, R::AbstractMatrix)
+function FrictionModels.friction!(model::LDFAModel, F::AbstractMatrix, R::AbstractMatrix)
     density!(model, model.ρ, R)
     clamp!(model.ρ, 0, Inf)
     @. model.radii = 1 / cbrt(4/3 * π * model.ρ)
