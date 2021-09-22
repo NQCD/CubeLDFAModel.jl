@@ -1,6 +1,5 @@
 
-using StaticArrays
-using LinearAlgebra
+using StaticArrays: SVector
 
 struct Cube{T}
     origin::SVector{3,T}
