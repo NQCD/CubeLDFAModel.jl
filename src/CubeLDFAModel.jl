@@ -78,7 +78,7 @@ function LDFAModel(model::Model, filename, atoms, cell;
     LDFAModel(model, splines, cube, ρ, radii, friction_atoms, cell)
 end
     
-NonadiabaticModels.ndofs(model::LDFAModel) = NonadiabaticModels.ndofs(model.model)
+NQCModels.ndofs(model::LDFAModel) = NQCModels.ndofs(model.model)
 
 function NQCModels.potential(model::LDFAModel, R::AbstractMatrix)
     NQCModels.potential(model.model, R)
