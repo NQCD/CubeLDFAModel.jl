@@ -1,6 +1,6 @@
-using NonadiabaticModels: Free, FrictionModels
+using NQCModels: Free, FrictionModels
 using PyCall
-using NonadiabaticDynamicsBase
+using NQCBase
 using CubeLDFAModel
 using Test
 using Unitful
@@ -9,7 +9,7 @@ include("test_cube.jl")
 
 aseio = pyimport("ase.io")
 ase_atoms = aseio.read("start.in")
-atoms, R, cell =  NonadiabaticDynamicsBase.convert_from_ase_atoms(ase_atoms)
+atoms, R, cell =  NQCBase.convert_from_ase_atoms(ase_atoms)
 
 model = LDFAModel(Free(), "test.cube", atoms, cell; friction_atoms=[1, 2])
 

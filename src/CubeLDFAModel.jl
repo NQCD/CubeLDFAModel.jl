@@ -8,8 +8,8 @@ using DataInterpolations: CubicSpline
 using DelimitedFiles: readdlm
 using UnitfulAtomic: austrip
 using Unitful: @u_str
-using NonadiabaticDynamicsBase: PeriodicCell, apply_cell_boundaries!
-using NonadiabaticModels: NonadiabaticModels, FrictionModels, Model
+using NQCBase: PeriodicCell, apply_cell_boundaries!
+using NQCModels: NQCModels, FrictionModels, Model
 
 include("cube.jl")
 
@@ -80,12 +80,12 @@ end
     
 NonadiabaticModels.ndofs(model::LDFAModel) = NonadiabaticModels.ndofs(model.model)
 
-function NonadiabaticModels.potential(model::LDFAModel, R::AbstractMatrix)
-    NonadiabaticModels.potential(model.model, R)
+function NQCModels.potential(model::LDFAModel, R::AbstractMatrix)
+    NQCModels.potential(model.model, R)
 end
 
-function NonadiabaticModels.derivative!(model::LDFAModel, D::AbstractMatrix, R::AbstractMatrix)
-    NonadiabaticModels.derivative!(model.model, D, R)
+function NQCModels.derivative!(model::LDFAModel, D::AbstractMatrix, R::AbstractMatrix)
+    NQCModels.derivative!(model.model, D, R)
 end
 
 function density!(model::LDFAModel, ρ::AbstractVector, R::AbstractMatrix)

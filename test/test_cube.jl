@@ -1,6 +1,6 @@
 
 using Test
-using NonadiabaticDynamicsBase
+using NQCBase
 using CubeLDFAModel
 using PyCall
 
